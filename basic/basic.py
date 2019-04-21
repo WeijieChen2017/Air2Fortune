@@ -5,6 +5,10 @@ import copy
 import numpy as np
 from bank.bank import bank_get_value
 
+n_player = bank_get_value("n_player")
+n_coin = bank_get_value("n_coin")
+n_max_game = bank_get_value("n_max_game")
+
 
 class A2F_Data(object):
 
@@ -52,12 +56,11 @@ class A2F_Round(object):
         self._action = action
 
     def run(self):
-        n_coin = bank_get_value("n_coin")
-        n_player = bank_get_value("n_player")
         temp_action = self._action.get_value()
         temp_chessboard = self._chessboard.get_value()
 
         result = np.sum(temp_action, axis=0)
+        n_coin = bank_get_value("n_coin")
         for i in range(n_coin):
             if result[i] > 1:
                 temp_action[:, i] = np.zeros(n_player)
@@ -93,7 +96,6 @@ class A2F_Game(object):
 
     def winner(self):
         n_max_game = bank_get_value("n_max_game")
-        n_player = bank_get_value("n_player")
         if self._total_round < n_max_game-1:
             raise A2F_Error("The game is not over")
         else:
@@ -119,7 +121,7 @@ class A2F_Policy(object):
         self._game = game
         self._chessboard = chessboard
         self._player = player
-        self._target = np.zeros(bank_get_value("n_coin"))
+        self._target = np.zeros(n_coin)
         # in valid table, 0 is possible and 1 is impossible
         valid_table = [[0, 0, 0, 1, 1],
                        [0, 1, 0, 0, 1],
@@ -142,6 +144,6 @@ class A2F_Policy(object):
         temp_player = self._player.get_value()
         validity = valid_table.dot(temp_target).dot(temp_player)
         if np.sum(validity) > 0:
-            self._target = np.zeros(bank_get_value("n_coin"))
+            self._target = np.zeros(n_coin)
 
         return self._target
