@@ -1,0 +1,133 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+import numpy as np
+from bank.bank import bank_get_value
+
+
+class A2F_Data(object):
+
+    def __init__(self, value):
+        self._value = np.array(value)
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
+
+class A2F_Chessboard(A2F_Data):
+
+    def __init__(self, value):
+        A2F_Data.__init__(self, value)
+
+
+class A2F_Player(A2F_Data):
+
+    def __init__(self, value):
+        A2F_Data.__init__(self, value)
+
+
+class A2F_Action(A2F_Data):
+
+    def __init__(self, value):
+        A2F_Data.__init__(self, value)
+
+
+class A2F_Coin(A2F_Data):
+
+    def __init__(self, value):
+        A2F_Data.__init__(self, value)
+
+
+class A2F_Round(object):
+
+    def __init__(self,
+                 chessboard: A2F_Chessboard,
+                 player: A2F_Player,
+                 action: A2F_Action,
+                 coin: A2F_Coin):
+        self._chessboard = chessboard
+        self._player = player
+        self._action = action
+        self._coin = coin
+
+    def run(self):
+        n_coin = bank_get_value("n_coin")
+        n_player = bank_get_value("n_player")
+        temp_action = self._action.get_value()
+        temp_chessboard = self._chessboard.get_value()
+        temp_coin = self._coin.get_value()
+
+        result = np.sum(temp_action, axis=0)
+        for i in range(n_coin):
+            if result[i] > 1:
+                temp_action[:, i] = np.zeros(n_player)
+        current_coin = np.dot(temp_action, temp_chessboard)
+        self._coin = A2F_Coin(temp_coin + current_coin)
+
+    def get_coin(self):
+        return self._coin
+
+
+class A2F_Error(Exception):
+
+    def __init__(self, value):
+        self.__value = value
+
+    def __str__(self):
+        return repr(self.__value)
+
+
+class A2F_History(object):
+
+    def __init__(self):
+        self._value = []
+        self._total_round = 0
+
+    def add_round(self, a2f_round):
+        self._value.append(a2f_round)
+        self._total_round += 1
+
+    def get_round(self, idx_round):
+        if idx_round >= self._total_round:
+            raise A2F_Error("There is no such round.")
+        return self._value[idx_round]
+
+
+class A2F_Policy(object):
+
+    def __init__(self,
+                 history: A2F_History,
+                 chessboard: A2F_Chessboard,
+                 player: A2F_Player):
+        self._history = history
+        self._chessboard = chessboard
+        self._player = player
+        self._target = np.zeros(bank_get_value("n_coin"))
+        # in valid table, 0 is possible and 1 is impossible
+        valid_table = [[0, 0, 0, 1, 1],
+                       [0, 1, 0, 0, 1],
+                       [1, 0, 0, 1, 0],
+                       [1, 1, 0, 0, 0]]
+        self._valid_table = np.asarray(valid_table)
+        temp_player = self._player.get_value()
+        # 1*D vector to express possible choice
+        self._choice = np.dot(temp_player, np.subtract(1, self._valid_table))
+
+    def predict(self):
+        # do some algorigthm
+        # self.__target =
+        return None
+
+    def decide(self):
+        # check validity and generate the willing
+        valid_table = self._valid_table
+        temp_target = self._target
+        temp_player = self._player.get_value()
+        validity = valid_table.dot(temp_target).dot(temp_player)
+        if np.sum(validity) > 0:
+            self._target = np.zeros(bank_get_value("n_coin"))
+
+        return self._target
