@@ -5,9 +5,9 @@ import copy
 import numpy as np
 from bank.bank import bank_get_value
 
-n_player = bank_get_value("n_player")
-n_coin = bank_get_value("n_coin")
-n_max_game = bank_get_value("n_max_game")
+# n_player = bank_get_value("n_player")
+# n_coin = bank_get_value("n_coin")
+# total_game = bank_get_value("total_game")
 
 
 class A2F_Data(object):
@@ -61,6 +61,7 @@ class A2F_Round(object):
 
         result = np.sum(temp_action, axis=0)
         n_coin = bank_get_value("n_coin")
+        n_player = bank_get_value("n_player")
         for i in range(n_coin):
             if result[i] > 1:
                 temp_action[:, i] = np.zeros(n_player)
@@ -95,12 +96,13 @@ class A2F_Game(object):
         return self._process[idx_round]
 
     def winner(self):
-        n_max_game = bank_get_value("n_max_game")
-        if self._total_round < n_max_game-1:
+        total_game = bank_get_value("total_game")
+        n_player = bank_get_value("n_player")
+        if self._total_round < total_game-1:
             raise A2F_Error("The game is not over")
         else:
             init_coin = A2F_Coin(np.zeros(n_player))
-            for idx_round in range(n_max_game):
+            for idx_round in range(total_game):
                 curr_coin = self._process[idx_round].run()
                 init_coin.set_value(init_coin.get_value()+curr_coin.get_value())
 
@@ -118,6 +120,7 @@ class A2F_Policy(object):
                  game: A2F_Game,
                  chessboard: A2F_Chessboard,
                  player: A2F_Player):
+        n_coin = bank_get_value("n_coin")
         self._game = game
         self._chessboard = chessboard
         self._player = player
@@ -142,7 +145,28 @@ class A2F_Policy(object):
         temp_target = self._target
         temp_player = self._player.get_value()
         validity = valid_table.dot(temp_target).dot(temp_player)
+        n_coin = bank_get_value("n_coin")
         if np.sum(validity) > 0:
             self._target = np.zeros(n_coin)
-
         return self._target
+
+
+def invite_players(player_list, game:A2F_Game, chessboard:A2F_Chessboard):
+    n_player = bank_get_value("n_player")
+    action_list = []
+    for idx in range(n_player):
+        curr_player = player_list[idx](game=game,
+                                       chessboard=chessboard,
+                                       player=A2F_Player(np.eye(n_player)[idx]))
+        curr_player.predict()
+        action_list.append(curr_player.decide())
+    return A2F_Action(action_list)
+
+
+def show_player_ID(player_list):
+    n_player = bank_get_value("n_player")
+    player_ID = []
+    for idx in range(n_player):
+        player_ID.append(player_list[idx].__name__)
+
+    return player_ID
