@@ -133,9 +133,8 @@ class A2F_Policy(object):
         self._choice = np.dot(temp_player, np.subtract(1, self._valid_table))
 
     def predict(self):
-        # do some algorigthm
-        # self.__target =
-        return None
+        # design some algorigthms here
+        self._target = self._target
 
     def decide(self):
         # check validity and generate the willing
