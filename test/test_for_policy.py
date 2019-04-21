@@ -22,18 +22,18 @@ action_0 = A2F_Action([policy_0, policy_1, policy_2, policy_3])
 round_0 = A2F_Round(chessboard=chessboard_0,
                     action=action_0)
 round_0.run()
-history_0 = A2F_History()
+game_0 = A2F_Game()
 
 
 # test greedy policy
-greedy_player = A2FP_Greedy(history=history_0,
+greedy_player = A2FP_Greedy(game=game_0,
                             chessboard=chessboard_0,
                             player=player_0)
 greedy_player.predict()
 print(greedy_player.decide())
 
 # test random policy
-random_player = A2FP_Random(history=history_0,
+random_player = A2FP_Random(game=game_0,
                             chessboard=chessboard_0,
                             player=player_0)
 random_player.predict()

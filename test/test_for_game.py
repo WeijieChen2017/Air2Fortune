@@ -11,30 +11,32 @@ bank_set_value("n_player", 4)
 bank_set_value("n_coin", 5)
 bank_set_value("n_max_game", 5)
 
-chessboard_0 = A2F_Chessboard([2, 3, 5, 3, 2])
-player_0 = A2F_Player([0, 0, 1, 0])
+chessboard = A2F_Chessboard([2, 3, 5, 3, 2])
+player_0 = A2F_Player([1, 0, 0, 0])
+player_1 = A2F_Player([0, 1, 0, 0])
+player_2 = A2F_Player([0, 0, 1, 0])
+player_3 = A2F_Player([0, 0, 0, 1])
+player_list = [player_0, player_1, player_2, player_3]
+
 coin_0 = A2F_Coin([0, 0, 0, 0])
-policy_0 = [0, 0, 1, 0, 0]
-policy_1 = [1, 0, 0, 0, 0]
-policy_2 = [0, 0, 1, 0, 0]
-policy_3 = [0, 0, 0, 1, 0]
-action_0 = A2F_Action([policy_0, policy_1, policy_2, policy_3])
-round_0 = A2F_Round(chessboard=chessboard_0,
-                    action=action_0)
-round_0.run()
-history_0 = A2F_History()
+game = A2F_Game()
+coin_list = []
+
+for idx_round in range(bank_get_value("n_max_game")):
+    action_list = []
+    for idx_player in range(bank_get_value("n_player")):
+        random_player = A2FP_Random(game=game,
+                                    chessboard=chessboard,
+                                    player=player_list[idx_player])
+        random_player.predict()
+        action_list.append(random_player.decide())
+    curr_action = A2F_Action(action_list)
+    curr_round = A2F_Round(chessboard=chessboard, action=curr_action)
+    coin_list.append(curr_round.run())
+    game.add_round(curr_round)
+
+final_coin, best_player = game.winner()
+print("Final coin:", final_coin)
+print("Best player", best_player)
 
 
-# test greedy policy
-greedy_player = A2FP_Greedy(history=history_0,
-                            chessboard=chessboard_0,
-                            player=player_0)
-greedy_player.predict()
-print(greedy_player.decide())
-
-# test random policy
-random_player = A2FP_Random(history=history_0,
-                            chessboard=chessboard_0,
-                            player=player_0)
-random_player.predict()
-print(random_player.decide())

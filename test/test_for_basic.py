@@ -23,8 +23,8 @@ coin_1 = round_0.run()
 print(coin_0.get_value() + coin_1.get_value())
 
 # test history
-history_0 = A2F_History()
-history_0.add_round(round_0)
-coin_11 = history_0.get_round(0).run()
+game_0 = A2F_Game()
+game_0.add_round(round_0)
+coin_11 = game_0.get_round(0).run()
 print(coin_0.get_value() + coin_11.get_value())
 

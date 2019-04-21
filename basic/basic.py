@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import copy
 import numpy as np
 from bank.bank import bank_get_value
 
@@ -11,7 +12,8 @@ class A2F_Data(object):
         self._value = np.array(value)
 
     def get_value(self):
-        return self._value
+        value = copy.deepcopy(self._value)
+        return value
 
     def set_value(self, value):
         self._value = value
@@ -72,29 +74,49 @@ class A2F_Error(Exception):
         return repr(self.__value)
 
 
-class A2F_History(object):
+
+
+class A2F_Game(object):
 
     def __init__(self):
-        self._value = []
+        self._process = []
         self._total_round = 0
 
-    def add_round(self, a2f_round):
-        self._value.append(a2f_round)
+    def add_round(self, a2f_round: A2F_Round):
+        self._process.append(a2f_round)
         self._total_round += 1
 
     def get_round(self, idx_round):
         if idx_round >= self._total_round:
             raise A2F_Error("There is no such round.")
-        return self._value[idx_round]
+        return self._process[idx_round]
+
+    def winner(self):
+        n_max_game = bank_get_value("n_max_game")
+        n_player = bank_get_value("n_player")
+        if self._total_round < n_max_game-1:
+            raise A2F_Error("The game is not over")
+        else:
+            init_coin = A2F_Coin(np.zeros(n_player))
+            for idx_round in range(n_max_game):
+                curr_coin = self._process[idx_round].run()
+                init_coin.set_value(init_coin.get_value()+curr_coin.get_value())
+
+            final_coin = init_coin.get_value()
+            best_player = init_coin.get_value()
+            best_profit = np.max(final_coin)
+            best_player[best_player < best_profit] = 0
+            best_player[best_player == best_profit] = 1
+            return final_coin, best_player
 
 
 class A2F_Policy(object):
 
     def __init__(self,
-                 history: A2F_History,
+                 game: A2F_Game,
                  chessboard: A2F_Chessboard,
                  player: A2F_Player):
-        self._history = history
+        self._game = game
         self._chessboard = chessboard
         self._player = player
         self._target = np.zeros(bank_get_value("n_coin"))
@@ -123,24 +145,3 @@ class A2F_Policy(object):
             self._target = np.zeros(bank_get_value("n_coin"))
 
         return self._target
-
-
-class A2F_Game(A2F_History):
-
-    def __init__(self):
-        A2F_History.__init__(self)
-
-    def winner(self):
-        n_max_game = bank_get_value("n_max_game")
-        n_player = bank_get_value("n_player")
-        if self._total_round < n_max_game-1:
-            raise A2F_Error("The game is not over")
-        else:
-            init_coin = A2F_Coin(np.zeros(n_player))
-            for idx in range(n_max_game):
-                curr_coin = self.get_round(idx).run()
-                init_coin.set_value(init_coin.get_value()+curr_coin.get_value())
-
-            temp_coin = init_coin.get_value()
-            best_player = np.argmax(temp_coin)
-            return np.eye(n_player)[best_player]

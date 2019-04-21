@@ -11,11 +11,11 @@ class A2FP_Greedy(A2F_Policy):
     # always choose maximum value
 
     def __init__(self,
-                 history: A2F_History,
+                 game: A2F_Game,
                  chessboard: A2F_Chessboard,
                  player: A2F_Player):
         A2F_Policy.__init__(self,
-                            history=history,
+                            game=game,
                             chessboard=chessboard,
                             player=player)
 
@@ -32,11 +32,11 @@ class A2FP_Random(A2F_Policy):
     # random choice from possible location
 
     def __init__(self,
-                 history: A2F_History,
+                 game: A2F_Game,
                  chessboard: A2F_Chessboard,
                  player: A2F_Player):
         A2F_Policy.__init__(self,
-                            history=history,
+                            game=game,
                             chessboard=chessboard,
                             player=player)
 
