@@ -119,7 +119,8 @@ class A2F_Policy(object):
     def __init__(self,
                  game: A2F_Game,
                  chessboard: A2F_Chessboard,
-                 player: A2F_Player):
+                 player: A2F_Player,
+                 para: list):
         n_coin = bank_get_value("n_coin")
         self._game = game
         self._chessboard = chessboard
@@ -150,23 +151,3 @@ class A2F_Policy(object):
             self._target = np.zeros(n_coin)
         return self._target
 
-
-def invite_players(player_list, game:A2F_Game, chessboard:A2F_Chessboard):
-    n_player = bank_get_value("n_player")
-    action_list = []
-    for idx in range(n_player):
-        curr_player = player_list[idx](game=game,
-                                       chessboard=chessboard,
-                                       player=A2F_Player(np.eye(n_player)[idx]))
-        curr_player.predict()
-        action_list.append(curr_player.decide())
-    return A2F_Action(action_list)
-
-
-def show_player_ID(player_list):
-    n_player = bank_get_value("n_player")
-    player_ID = []
-    for idx in range(n_player):
-        player_ID.append(player_list[idx].__name__)
-
-    return player_ID

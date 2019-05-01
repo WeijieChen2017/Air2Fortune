@@ -7,11 +7,13 @@ mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 from bank.bank import bank_set_value
 from policy.pure_policy import *
+from policy.advanced_policy import *
 from basic.basic import *
+from basic.advanced import *
 
 # basic setting
 
-max_game = 100
+max_game = 10
 n_player = 4
 n_coin = 5
 n_test = 30
@@ -19,7 +21,8 @@ bank_set_value("n_player", n_player)
 bank_set_value("n_coin", n_coin)
 chessboard = A2F_Chessboard([2, 3, 5, 3, 2])
 winning_rate = np.zeros((n_player, max_game))
-player_list = [A2FP_Random, A2FP_Random, A2FP_Greedy, A2FP_Random]
+player_list = [A2FP_Random, A2FP_Random, A2FP_MAB, A2FP_Cheat]
+para_list = [None, None, None, [0.1, 0.5, 0.4]]
 
 # simulate
 for idx_game in range(max_game):
@@ -35,10 +38,12 @@ for idx_game in range(max_game):
 
             curr_action = invite_players(player_list=player_list,
                                          game=game,
-                                         chessboard=chessboard)
+                                         chessboard=chessboard,
+                                         para_list=para_list)
 
             curr_round = A2F_Round(chessboard=chessboard, action=curr_action)
             game.add_round(curr_round)
+            # print(game._total_round)
 
         final_coin, best_player = game.winner()
         init_winner += best_player
