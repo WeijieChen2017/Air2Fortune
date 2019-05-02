@@ -13,16 +13,17 @@ from basic.advanced import *
 
 # basic setting
 
-max_game = 10
+max_game = 100
 n_player = 4
 n_coin = 5
 n_test = 30
 bank_set_value("n_player", n_player)
 bank_set_value("n_coin", n_coin)
+bank_set_value("max_game", max_game)
 chessboard = A2F_Chessboard([2, 3, 5, 3, 2])
 winning_rate = np.zeros((n_player, max_game))
-player_list = [A2FP_Random, A2FP_Random, A2FP_MAB, A2FP_Cheat]
-para_list = [None, None, None, [0.1, 0.5, 0.4]]
+player_list = [A2FP_Random_Prob, A2FP_Random_Prob, A2FP_MAB, A2FP_Random_Prob]
+para_list = [[0.2, 0.3, 0.5], [0.1, 0.1, 0.8], None, [0.1, 0.5, 0.4]]
 
 # simulate
 for idx_game in range(max_game):

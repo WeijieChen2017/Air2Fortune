@@ -98,16 +98,78 @@ class A2FP_MAB(A2F_Policy):
 
     def predict(self):
         n_coin = bank_get_value("n_coin")
+        n_player = bank_get_value("n_player")
+        chessboard = self._chessboard.get_value()
         choice = self._choice
         history = self._game
-        # print(history._total_round)
+        history_action = []
         if history._total_round > 0:
-            curr_round = history.get_round(0)
-            curr_action = curr_round
-            print("MAB explore")
-            print("Total round:", history._total_round)
-            print(curr_action._action.get_value())
-            print("MAB ends")
+            for idx_round in range(history._total_round):
+                history_action.append(history.get_round(idx_round)._action.get_value())
+            history_action = np.asarray(history_action)
+            history_action = np.sum(history_action, axis=0)
+            idx_player = np.nonzero(self._player.get_value())[0][0]
+
+            history_action[idx_player].fill(0)
+
+            # two choice, expectation of value or counts
+            # counts
+            # print(history_action)
+            # history_action = np.sum(history_action, axis=0)
+            #
+            # estimation = np.multiply(history_action, choice)
+            # estimation[estimation == 0] = bank_get_value("max_game")
+            # print(np.argmin(estimation))
+            # self._target = np.eye(n_coin)[np.argmin(estimation)]
+
+            # value
+            # history_action = np.sum(history_action, axis=0)
+            # estimation = np.multiply(history_action, choice)
+            # estimation[estimation == 0] = bank_get_value("max_game")
+            # estimation = np.subtract(history._total_round, estimation)
+            # benefit = np.multiply(estimation, chessboard)
+            # # print(np.argmin(estimation))
+            # self._target = np.eye(n_coin)[np.argmax(benefit)]
+
+            # improved value
+            for idx in range(n_player):
+                if idx != idx_player:
+                    curr_count = history_action[idx]
+                    history_action[idx] = np.eye(n_coin)[np.argmax(curr_count)]
+
+            # print("choice:", choice)
+            # print("history action:", history_action)
+            history_action = np.sum(history_action, axis=0)
+            estimation = np.multiply(history_action, choice)
+            # print("estimatione", estimation)
+            estimation[estimation == 0] = 3
+            estimation = np.subtract(3, estimation)
+            # print("estimatione", estimation)
+            # print("chessboard:", chessboard)
+            benefit = np.multiply(estimation, chessboard)
+
+            # print(choice)
+            # print(history_action)
+            # print(estimation)
+            # print("decision:", np.argmax(benefit))
+            # print("------------")
+
+            # print(np.argmin(estimation))
+            self._target = np.eye(n_coin)[np.argmax(benefit)]
+
+
+        else:
+            benefit = np.multiply(choice, chessboard)
+            self._target = np.eye(n_coin)[np.argmax(benefit)]
+
+            # print("MAB explore")
+            # print("Total round:", history._total_round)
+            # print(history_action)
+            # print(idx_player)
+            # print(choice)
+            # print(estimation)
+            # print("MAB ends")
+            # print("-------------")
         # self._target = [0, 0, 0, 0, 0]
         # action_list = self.para
         # chessboard = self._chessboard.get_value()
@@ -118,8 +180,8 @@ class A2FP_MAB(A2F_Policy):
         # benefits = np.multiply(possible_choice, chessboard)
         # self._target = np.eye(n_coin)[np.argmax(benefits)]
 
-        choice = self._choice
-        chessboard = self._chessboard.get_value()
-        benefit = np.multiply(choice, chessboard)
-        n_coin = bank_get_value("n_coin")
-        self._target = np.eye(n_coin)[np.argmax(benefit)]
+        # choice = self._choice
+        # chessboard = self._chessboard.get_value()
+        # benefit = np.multiply(choice, chessboard)
+        # n_coin = bank_get_value("n_coin")
+        # self._target = np.eye(n_coin)[np.argmax(benefit)]
