@@ -22,8 +22,11 @@ bank_set_value("n_coin", n_coin)
 bank_set_value("max_game", max_game)
 chessboard = A2F_Chessboard([2, 3, 5, 3, 2])
 winning_rate = np.zeros((n_player, max_game))
-player_list = [A2FP_Random_Prob, A2FP_Random_Prob, A2FP_MAB, A2FP_Random_Prob]
-para_list = [[0.2, 0.3, 0.5], [0.1, 0.1, 0.8], None, [0.1, 0.5, 0.4]]
+player_list = [A2FP_Observer, A2FP_Random_Prob, A2FP_Random_Prob, A2FP_Random_Prob]
+para_list = [[0.7, 0.2, 0.1],
+             [0.2, 0.1, 0.7],
+             [0.7, 0.1, 0.2],
+             [0.1, 0.7, 0.2]]
 
 # simulate
 for idx_game in range(max_game):
@@ -43,6 +46,8 @@ for idx_game in range(max_game):
                                          para_list=para_list)
 
             curr_round = A2F_Round(chessboard=chessboard, action=curr_action)
+            # print(curr_action.get_value())
+            # print("-------------")
             game.add_round(curr_round)
             # print(game._total_round)
 
