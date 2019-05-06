@@ -5,6 +5,7 @@ import datetime
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
+import seaborn as sns
 from bank.bank import bank_set_value
 from policy.pure_policy import *
 from policy.advanced_policy import *
@@ -19,15 +20,16 @@ from basic.advanced import *
 
 # basic setting
 
-max_game = 100000
+max_game = 300
 n_player = 4
 n_coin = 5
-n_test = 300
-lr = 1e-3
+n_test = 100
+lr = 1
+filename = "prob_"+str(max_game)+"_"+str(lr)+"_uni_fixed"
 bank_set_value("n_player", n_player)
 bank_set_value("n_coin", n_coin)
 bank_set_value("max_game", max_game)
-chessboard = A2F_Chessboard([3, 5, 10, 5, 3])
+chessboard = A2F_Chessboard([10, 5, 3, 5, 10])
 chessboard_value = chessboard.get_value()
 winning_rate = np.zeros((n_player, max_game))
 player_list = [A2FP_Learner,
@@ -55,11 +57,16 @@ valid_table = [[0, 0, 0, 1, 1],
                [1, 1, 0, 0, 0]]
 
 reverse_table = [[0, 1, 2, 9, 9],
-                 [0, 9, 1, 2, 9],
-                 [9, 0, 1, 9, 2],
-                 [9, 9, 0, 1, 2]]
+                 [0, 9, 2, 1, 9],
+                 [9, 1, 2, 9, 0],
+                 [9, 9, 2, 1, 0]]
+
+# reverse_table = [[2, 1, 0, 9, 9],
+                 # [2, 9, 0, 1, 9],
+                 # [9, 1, 0, 9, 2],
+                 # [9, 9, 0, 1, 2]]
 choice = np.subtract(1, valid_table)
-history_prob = np.zeros((max_game, n_test, n_player, 3))
+# history_prob = np.zeros((max_game, n_test, n_player, 3))
 
 # simulate
 # for idx_game in range(max_game):
@@ -175,7 +182,7 @@ history_prob = np.zeros((max_game, n_test, n_player, 3))
 
 for idx_test in range(n_test):
     game = A2F_Game()
-    para_list = copy.deepcopy(PARA_SYM_NE)
+    para_list = copy.deepcopy(PARA_UNI)
     for idx_round in range(total_game):
 
         curr_action = invite_players(player_list=player_list,
@@ -221,4 +228,90 @@ for idx_test in range(n_test):
 
     print(idx_test)
 
-np.save("prob_100000.npy", history_prob)
+np.save(filename+".npy", history_prob)
+
+
+xmesh = np.array(range(max_game))
+# print(history_prob[:, 0, 1])
+
+plt.figure(figsize=(8, 6), dpi=300)
+
+prob_low = np.zeros((max_game, n_player))
+prob_medium = np.zeros((max_game, n_player))
+prob_high = np.zeros((max_game, n_player))
+for idx_game in range(max_game):
+    prob_low[idx_game, 0] = np.mean(history_prob[idx_game, :, 0, 0])
+    prob_low[idx_game, 1] = np.mean(history_prob[idx_game, :, 1, 0])
+    prob_low[idx_game, 2] = np.mean(history_prob[idx_game, :, 2, 0])
+    prob_low[idx_game, 3] = np.mean(history_prob[idx_game, :, 3, 0])
+
+    prob_medium[idx_game, 0] = np.mean(history_prob[idx_game, :, 0, 1])
+    prob_medium[idx_game, 1] = np.mean(history_prob[idx_game, :, 1, 1])
+    prob_medium[idx_game, 2] = np.mean(history_prob[idx_game, :, 2, 1])
+    prob_medium[idx_game, 3] = np.mean(history_prob[idx_game, :, 3, 1])
+
+    prob_high[idx_game, 0] = np.mean(history_prob[idx_game, :, 0, 2])
+    prob_high[idx_game, 1] = np.mean(history_prob[idx_game, :, 1, 2])
+    prob_high[idx_game, 2] = np.mean(history_prob[idx_game, :, 2, 2])
+    prob_high[idx_game, 3] = np.mean(history_prob[idx_game, :, 3, 2])
+
+
+# plt.scatter(xmesh, prob_high[:, 0], marker='^', c=sns.xkcd_rgb["windows blue"], alpha=0.7)
+# plt.scatter(xmesh, prob_high[:, 1], marker='^', c=sns.xkcd_rgb["amber"], alpha=0.7)
+# plt.scatter(xmesh, prob_high[:, 2], marker='^', c=sns.xkcd_rgb["faded green"], alpha=0.7)
+# plt.scatter(xmesh, prob_high[:, 3], marker='^', c=sns.xkcd_rgb["pale red"], alpha=0.7)
+
+trans = 0.7
+
+plt.scatter(xmesh, prob_low[:, 0], marker='^', c=sns.xkcd_rgb["medium green"], alpha=trans)
+plt.scatter(xmesh, prob_low[:, 1], marker='s', c=sns.xkcd_rgb["medium green"], alpha=trans)
+plt.scatter(xmesh, prob_low[:, 2], marker='.', c=sns.xkcd_rgb["medium green"], alpha=trans)
+plt.scatter(xmesh, prob_low[:, 3], marker='+', c=sns.xkcd_rgb["medium green"], alpha=trans)
+
+plt.scatter(xmesh, prob_medium[:, 0], marker='^', c=sns.xkcd_rgb["denim blue"], alpha=trans)
+plt.scatter(xmesh, prob_medium[:, 1], marker='s', c=sns.xkcd_rgb["denim blue"], alpha=trans)
+plt.scatter(xmesh, prob_medium[:, 2], marker='.', c=sns.xkcd_rgb["denim blue"], alpha=trans)
+plt.scatter(xmesh, prob_medium[:, 3], marker='+', c=sns.xkcd_rgb["denim blue"], alpha=trans)
+
+plt.scatter(xmesh, prob_high[:, 0], marker='^', c=sns.xkcd_rgb["pale red"], alpha=trans)
+plt.scatter(xmesh, prob_high[:, 1], marker='s', c=sns.xkcd_rgb["pale red"], alpha=trans)
+plt.scatter(xmesh, prob_high[:, 2], marker='.', c=sns.xkcd_rgb["pale red"], alpha=trans)
+plt.scatter(xmesh, prob_high[:, 3], marker='+', c=sns.xkcd_rgb["pale red"], alpha=trans)
+
+avg_low = round(float(np.mean(prob_low[-1, :])), 6)
+avg_medium = round(float(np.mean(prob_medium[-1, :])), 6)
+avg_high = round(float(np.mean(prob_high[-1, :])), 6)
+
+plt.title("[Low, Medium, High] = ["+str(avg_low)+", "+str(avg_medium)+", "+str(avg_high)+"], lr="+str(lr))
+plt.legend(["Prob L_1", "Prob L_2", "Prob L_3", "Prob L_4",
+            "Prob M_1", "Prob M_2", "Prob M_3", "Prob M_4",
+            "Prob H_1", "Prob H_2", "Prob H_3", "Prob H_4"])
+
+
+# plt.scatter(xmesh, history_prob[:, 0, 0, 0], marker='^')
+# plt.scatter(xmesh, history_prob[:, 0, 0, 1], marker='o')
+# plt.scatter(xmesh, history_prob[:, 0, 0, 2], marker='s')
+
+# plt.scatter(xmesh, history_prob[:, 0, 1, 0], marker='^')
+# plt.scatter(xmesh, history_prob[:, 0, 1, 1], marker='o')
+# plt.scatter(xmesh, history_prob[:, 0, 1, 2], marker='s')
+
+# plt.scatter(xmesh, history_prob[:, 0, 2, 0], marker='^')
+# plt.scatter(xmesh, history_prob[:, 0, 2, 1], marker='o')
+# plt.scatter(xmesh, history_prob[:, 0, 2, 2], marker='s')
+
+# plt.scatter(xmesh, history_prob[:, 0, 3, 0], marker='^')
+# plt.scatter(xmesh, history_prob[:, 0, 3, 1], marker='o')
+# plt.scatter(xmesh, history_prob[:, 0, 3, 2], marker='s')
+
+# plt.legend(["Prob L_1", "Prob M_1", "Prob H_!",
+#             "Prob L_2", "Prob M_2", "Prob H_2",
+#             "Prob L_3", "Prob M_3", "Prob H_3",
+#             "Prob L_4", "Prob M_4", "Prob H_4"])
+
+
+plt.xlabel("Number of total games")
+plt.ylabel("Prob over time")
+plt.ylim(bottom=0, top=1)
+plt.savefig(filename+".png")
+# np.save("prob.npy",history_prob )
