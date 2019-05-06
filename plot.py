@@ -7,11 +7,11 @@ mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-max_game = 200
 n_player = 4
-xmesh = np.array(range(max_game))
-history_prob = np.load("prob.npy")
+history_prob = np.load("prob_100000.npy")
 print(history_prob.shape)
+max_game = history_prob.shape[0]
+xmesh = np.array(range(max_game))
 # print(history_prob[:, 0, 1])
 
 plt.figure(figsize=(8, 6), dpi=300)
@@ -58,6 +58,11 @@ plt.scatter(xmesh, prob_high[:, 1], marker='s', c=sns.xkcd_rgb["pale red"], alph
 plt.scatter(xmesh, prob_high[:, 2], marker='.', c=sns.xkcd_rgb["pale red"], alpha=trans)
 plt.scatter(xmesh, prob_high[:, 3], marker='+', c=sns.xkcd_rgb["pale red"], alpha=trans)
 
+avg_low = round(float(np.mean(prob_low[-1, :])), 6)
+avg_medium = round(float(np.mean(prob_medium[-1, :])), 6)
+avg_high = round(float(np.mean(prob_high[-1, :])), 6)
+
+plt.title("[Low, Medium, High] = ["+str(avg_low)+", "+str(avg_medium)+", "+str(avg_high)+"]")
 plt.legend(["Prob L_1", "Prob L_2", "Prob L_3", "Prob L_4",
             "Prob M_1", "Prob M_2", "Prob M_3", "Prob M_4",
             "Prob H_1", "Prob H_2", "Prob H_3", "Prob H_4"])
@@ -88,5 +93,5 @@ plt.legend(["Prob L_1", "Prob L_2", "Prob L_3", "Prob L_4",
 plt.xlabel("Number of total games")
 plt.ylabel("Prob over time")
 plt.ylim(bottom=0, top=1)
-plt.savefig("Prob_200.png")
+plt.savefig("Prob_100000.png")
 np.save("prob.npy",history_prob )
