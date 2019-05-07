@@ -24,8 +24,8 @@ max_game = 300
 n_player = 4
 n_coin = 5
 n_test = 100
-lr = 1
-filename = "prob_"+str(max_game)+"_"+str(lr)+"_uni_fixed"
+lr = 1e-2
+filename = "FF_prob_"+str(max_game)+"_"+str(lr)+"_uni"
 bank_set_value("n_player", n_player)
 bank_set_value("n_coin", n_coin)
 bank_set_value("max_game", max_game)
