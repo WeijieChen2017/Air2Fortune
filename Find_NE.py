@@ -20,11 +20,11 @@ from basic.advanced import *
 
 # basic setting
 
-max_game = 300
+max_game = 30000
 n_player = 4
 n_coin = 5
 n_test = 100
-lr = 1e-2
+lr = 5e-4
 filename = "FF_prob_"+str(max_game)+"_"+str(lr)+"_uni"
 bank_set_value("n_player", n_player)
 bank_set_value("n_coin", n_coin)
