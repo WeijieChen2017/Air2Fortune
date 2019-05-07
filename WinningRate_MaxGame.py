@@ -28,6 +28,11 @@ para_list = [[0.7, 0.2, 0.1],
              [0.7, 0.1, 0.2],
              [0.1, 0.7, 0.2]]
 
+PARA_UNI = [[1/3, 1/3, 1/3],
+            [1/3, 1/3, 1/3],
+            [1/3, 1/3, 1/3],
+            [1/3, 1/3, 1/3]]
+
 # simulate
 for idx_game in range(max_game):
 
@@ -43,7 +48,7 @@ for idx_game in range(max_game):
             curr_action = invite_players(player_list=player_list,
                                          game=game,
                                          chessboard=chessboard,
-                                         para_list=para_list)
+                                         para_list=copy.deepcopy(PARA_UNI))
 
             curr_round = A2F_Round(chessboard=chessboard, action=curr_action)
             # print(curr_action.get_value())
@@ -67,7 +72,7 @@ plt.scatter(xmesh, winning_rate[1, :])
 plt.scatter(xmesh, winning_rate[2, :])
 plt.scatter(xmesh, winning_rate[3, :])
 plt.xlabel("Number of total games")
-plt.ylabel("Winning rate of the greedy player")
+plt.ylabel("Winning rate of the Observer player")
 plt.ylim(bottom=0, top=1)
 plt.legend(show_player_ID(player_list))
 plt.savefig("WinningRate_MaxGame"+time_stamp+".png")
